@@ -12,7 +12,7 @@ Full guide: https://github.com/ArtyomSimitian/agent-team-template
 - [ ] **Not Python?** Edit **Project commands** in `CLAUDE.md` and the `allow` list in
       `.claude\settings.json`.
 - [ ] **Protect folders** the agents must not read: add
-      `"Read(//c/Users/simit/path/**)"` to `deny` in `.claude\settings.json`.
+      `"Read(//c/Users/<you>/path/to/folder/**)"` to `deny` in `.claude\settings.json`.
 - [ ] **Set the budget** in `.work\limits.json`: about `6 × expected milestones + 10`.
 - [ ] Commit: `git add -A; git commit -m "Spec"`
 

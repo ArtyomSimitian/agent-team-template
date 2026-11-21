@@ -32,12 +32,77 @@ about 1 h 10 min, used 54 of 90 subagent calls, and needed no input after the fi
 
 ---
 
+## One-time setup
+
+**You need:** Windows with [Claude Code](https://docs.claude.com/en/docs/claude-code/overview)
+(signed in), [Git for Windows](https://git-scm.com/download/win) and Python 3.11+. Check them
+in PowerShell:
+```powershell
+claude --version; git --version; python --version
+```
+
+**Get the template.** The recommended location is `$HOME\source\GitHub`. `$HOME` is your
+user folder, e.g. `C:\Users\<you>`. New projects are created next to the template, so pick
+the folder where you keep your repos.
+```powershell
+mkdir $HOME\source\GitHub -Force; cd $HOME\source\GitHub
+git clone https://github.com/ArtyomSimitian/agent-team-template.git
+```
+To keep your own improvements, use **Use this template** or **Fork** on GitHub first, and
+clone your copy instead.
+
+**Allow local scripts** (once per PC, only if PowerShell says scripts are disabled):
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+**Placeholders in this guide:** replace `<your-username>` with your GitHub username and
+`<you>` with your Windows user name. Commands that use `$HOME` work as they are.
+
+---
+
+## Quick start: a new project in 5 steps
+
+The template folder stays where it is, and you never edit it for a project.
+
+**1. Create the project**
+```powershell
+cd $HOME\source\GitHub\agent-team-template
+.\scripts\new-project.ps1 -Name my-project -Remote https://github.com/<your-username>/my-project.git
+cd ..\my-project
+```
+If you want it on GitHub, create the empty repo there first. Otherwise leave out `-Remote`.
+
+**2. Describe what to build.** Fill in `SPEC.md`: what it does, the rules it must follow, and
+a "done when" line for each phase. Put any test data in `fixtures\`. The better the spec,
+the better the result.
+
+**3. Warm up (about 10 minutes)**
+- Terminal 2: `.\scripts\start-monitor.ps1`, then open http://localhost:8501
+- Terminal 1: `claude`, accept the trust dialog, then type:
+  `Read WARMUP.md and run it as the Coordinator, following CLAUDE.md.`
+- When it's done: `/exit`, then `.\scripts\reset-warmup.ps1`
+
+**4. Build.** Start a **new** `claude` session, press Shift+Tab until it says auto mode, then
+type:
+`Read SPEC.md and build it as the Coordinator, following CLAUDE.md. Work through every phase without stopping to ask me anything.`
+Then let it run and watch the dashboard.
+
+**5. Check the result.** Read `FINAL_REPORT.md`, which has the results and the questions it
+left for you. Then try the real thing yourself once, since the tests only used offline
+data.
+
+Each new project also has an `AGENT_TEAM.md` with this checklist plus troubleshooting. The
+sections below explain everything in more detail.
+
+---
+
 ## How to use it
 
 ### The idea: this folder is a factory
 
 **Don't clone or edit this repo for each project.** Keep it in one place
-(`C:\Users\simit\source\GitHub\agent-team-template`) and run its script. The script
+(recommended: `$HOME\source\GitHub\agent-team-template`) and run its script. The script
 creates each new project as a **separate folder with its own git history**, next to this
 one.
 
@@ -52,8 +117,8 @@ source\GitHub\
 
 ```powershell
 # 1. (Optional) create an EMPTY repo on https://github.com/new (no README), then:
-cd C:\Users\simit\source\GitHub\agent-team-template
-.\scripts\new-project.ps1 -Name my-new-project -Remote https://github.com/ArtyomSimitian/my-new-project.git
+cd $HOME\source\GitHub\agent-team-template
+.\scripts\new-project.ps1 -Name my-new-project -Remote https://github.com/<your-username>/my-new-project.git
 
 # 2. Go to the new project and follow its checklist
 cd ..\my-new-project
@@ -78,7 +143,7 @@ If PowerShell says *"running scripts is disabled"*, run this once:
 1. **Write `SPEC.md`.** This is the most important step; see "Writing a good spec" below.
    Add offline test data to `fixtures\`. If the project isn't Python, edit **Project
    commands** in `CLAUDE.md`.
-2. **Protect anything the agents must not see.** Add `"Read(//c/Users/simit/path/**)"` to
+2. **Protect anything the agents must not see.** Add `"Read(//c/Users/<you>/path/to/folder/**)"` to
    `deny` in `.claude\settings.json`.
 3. **Terminal 2:** `.\scripts\start-monitor.ps1`
 4. **Terminal 1, warm-up:** run `claude`, accept the trust dialog, then type
