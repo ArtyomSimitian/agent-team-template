@@ -1,12 +1,19 @@
 # Agent Team Template (Claude Code)
 
-A ready-to-use multi-agent setup for Claude Code. A **Coordinator** (the main session) works
-through a spec on its own, using six specialist subagents. Hooks log activity and enforce a
-budget, and a live dashboard shows progress.
+**What this is:** a reusable setup that lets Claude Code build a project on its own. You
+write a spec. A **Coordinator** (the main Claude session) splits it into milestones and
+hands each one to specialist agents: planner, researcher, developer, tester, reviewer and
+product. They write the code, test it, review it, fix it, commit it and push it, without
+you approving each step. A live dashboard shows what they're doing.
 
-It was proven on **GreenShift** (Nov 2026): 3 phases, 12 milestones, 177 tests, a Streamlit
-dashboard and 2 self-chosen features. That took about 1 h 10 min, used 54 of 90 subagent
-calls, and needed no human input after the first prompt.
+**When to use it:** for projects you can describe clearly up front, can test automatically,
+and that take more than a few prompts. Examples: a data pipeline, a CLI tool, a small app
+with a dashboard, or a library with tests. It's not worth it for quick one-off scripts or
+for exploratory work where you don't know yet what you want.
+
+**Track record:** it built **GreenShift** (Nov 2026) in one run: 3 phases, 12 milestones,
+177 tests, a Streamlit dashboard and 2 features the agents chose themselves. That took
+about 1 h 10 min, used 54 of 90 subagent calls, and needed no input after the first prompt.
 
 ```
                     ┌──────────────────────────┐
@@ -23,33 +30,79 @@ calls, and needed no human input after the first prompt.
                         that edits)              (read-only)  phase only)
 ```
 
-## Quick start
+---
+
+## How to use it
+
+### The idea: this folder is a factory
+
+**Don't clone or edit this repo for each project.** Keep it in one place
+(`C:\Users\simit\source\GitHub\agent-team-template`) and run its script. The script
+creates each new project as a **separate folder with its own git history**, next to this
+one.
+
+```
+source\GitHub\
+├── agent-team-template\   ← the factory (you only edit it to improve the template)
+├── my-new-project\        ← created by the script, where the agents work
+└── another-project\       ← created by the script
+```
+
+### Start a new project (2 commands)
 
 ```powershell
+# 1. (Optional) create an EMPTY repo on https://github.com/new (no README), then:
 cd C:\Users\simit\source\GitHub\agent-team-template
-.\scripts\new-project.ps1 -Name my-project -Remote https://github.com/ArtyomSimitian/my-project.git
-cd ..\my-project
-```
-`-Remote` is optional. Create the empty GitHub repo first (no README), and the script pushes
-the first commit, which also signs you in once.
+.\scripts\new-project.ps1 -Name my-new-project -Remote https://github.com/ArtyomSimitian/my-new-project.git
 
-1. **Write `SPEC.md`.** Start from the template copy: ground rules, phases, and "done when"
-   lines that can be checked. This is the most important step; see "Writing a good spec".
-2. **Adjust `CLAUDE.md` → Project commands** if the project isn't Python. Also adjust the
-   `allow` list in `.claude\settings.json` to match.
-3. **Protect anything the agents must not see.** For example, to keep them out of an
-   existing repo, add `"Read(//c/Users/simit/path/to/repo/**)"` to `deny`.
-4. **Start the dashboard** in terminal 2: `.\scripts\start-monitor.ps1`, then open
-   http://localhost:8501.
-5. **Warm up** in terminal 1: run `claude`, accept the trust dialog, then type
+# 2. Go to the new project and follow its checklist
+cd ..\my-new-project
+```
+Leave out `-Remote` to keep the project local only. Then open **`AGENT_TEAM.md`** in the new
+project. It's a one-page checklist: write the spec → warm up → reset → build → read the
+report.
+
+### The scripts
+
+| Script | Run it from | What it does |
+|---|---|---|
+| `scripts\new-project.ps1 -Name <name> [-Remote <url>] [-Packages a,b]` | this template folder | Creates `..\<name>`. Copies the agent team in, creates `SPEC.md` from the template, resets the status file, creates `.venv` and installs `pytest`, `streamlit`, `pandas` (plus any `-Packages`), runs `git init` and makes the first commit. With `-Remote`, it also links GitHub and pushes. It never overwrites an existing folder. |
+| `scripts\start-monitor.ps1` | the new project | Starts the live agent dashboard at http://localhost:8501 (reachable only from your PC). |
+| `scripts\reset-warmup.ps1` | the new project | After the warm-up: deletes the warm-up files, resets the status and the budget counter, and commits. Run it before the real build. |
+
+If PowerShell says *"running scripts is disabled"*, run this once:
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
+
+### The workflow in each new project (also in its `AGENT_TEAM.md`)
+
+1. **Write `SPEC.md`.** This is the most important step; see "Writing a good spec" below.
+   Add offline test data to `fixtures\`. If the project isn't Python, edit **Project
+   commands** in `CLAUDE.md`.
+2. **Protect anything the agents must not see.** Add `"Read(//c/Users/simit/path/**)"` to
+   `deny` in `.claude\settings.json`.
+3. **Terminal 2:** `.\scripts\start-monitor.ps1`
+4. **Terminal 1, warm-up:** run `claude`, accept the trust dialog, then type
    `Read WARMUP.md and run it as the Coordinator, following CLAUDE.md.`
-   Read `.work\warmup_report.md` and fix anything it flags.
-6. **Reset:** `.\scripts\reset-warmup.ps1`, then `/exit`.
-7. **Build** in a **new** `claude` session. CLAUDE.md is only read when a session starts.
-   Press Shift+Tab until it says auto mode, then type:
+   Read `.work\warmup_report.md`, then `/exit` and run `.\scripts\reset-warmup.ps1`.
+5. **Build** in a **new** `claude` session. Press Shift+Tab until it says auto mode, then
+   type:
    `Read SPEC.md and build it as the Coordinator, following CLAUDE.md. Work through every
    phase without stopping to ask me anything.`
-8. **When it stops:** read `FINAL_REPORT.md` (results, open questions) and `DECISIONS.md`.
+6. **Read** `FINAL_REPORT.md` and `DECISIONS.md`, then check anything that touches live
+   data yourself.
+
+### Other situations
+
+- **Improving the template:** edit the files *here*, then commit and push. New projects get
+  the change. Existing projects keep the version they started with.
+- **Another computer (e.g. Mac):** `git clone https://github.com/ArtyomSimitian/agent-team-template.git`
+  once and use that clone as the factory there. The `.ps1` scripts are Windows-only. On
+  macOS, copy the folder (minus `.git`) by hand, create the venv, and change the paths
+  under "Project commands" from `.venv/Scripts/python` to `.venv/bin/python`.
+- **Starting from GitHub's "Use this template" button** also works, but then you have to do
+  the script's steps yourself (venv, `SPEC.md`, status reset). The script is easier.
+
+---
 
 ## What's inside
 
