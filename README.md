@@ -65,6 +65,7 @@ the first commit, which also signs you in once.
 | `.work/` | Shared memory: `status.json` (the source of truth), `plan.md`, `log.md`, `notes/`, `limits.json`. |
 | `fixtures/` | Offline test data. |
 | `WARMUP.md` | A tiny 2-milestone task that tests the whole system. |
+| `AGENT_TEAM.md` | A one-page quick start copied into every new project. Delete it when you're done with it. |
 | `scripts/` | `new-project.ps1`, `reset-warmup.ps1`, `start-monitor.ps1`. |
 
 ## How it works

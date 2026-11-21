@@ -52,7 +52,7 @@ try {
 finally { Pop-Location }
 
 Write-Host ""
-Write-Host "Done. Next:"
+Write-Host "Done. Open $target\AGENT_TEAM.md for the step-by-step checklist. In short:"
 Write-Host "  1. Fill in $target\SPEC.md (delete SPEC.template.md when done)."
 Write-Host "  2. Check 'Project commands' in CLAUDE.md and the allow list in .claude\settings.json."
 Write-Host "  3. Terminal 2: .\scripts\start-monitor.ps1"
