@@ -17,8 +17,8 @@ about 1 h 10 min, used 54 of 90 subagent calls, and needed no input after the fi
 
 ```
                     ┌──────────────────────────┐
-     You ──task──▶  │  COORDINATOR             │ ◀── CLAUDE.md (loop, rules, stopping)
-                    │  (main Claude session)   │ ◀── SPEC.md   (what to build)
+You ──task  ──>     │       COORDINATOR        │ ◀── CLAUDE.md (loop, rules, stopping)
+                    │   (main Claude session)  │ ◀── SPEC.md   (what to build)
                     └────────────┬─────────────┘
           delegates + gets       │       reads/writes .work/ (plan, status, log, notes)
           short reports back     │
